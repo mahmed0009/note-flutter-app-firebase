@@ -9,61 +9,60 @@ class CreateNote extends StatefulWidget {
 }
 
 class _CreateNoteState extends State<CreateNote> {
-  TextEditingController createNote = new TextEditingController();
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController contentController = TextEditingController();
+
+  // Add a method to handle the note creation logic
+  void createNote() async {
+    final note = Note(
+      title: titleController.text,
+      content: contentController.text,
+      createdAt: DateTime.now(),
+    );
+
+    try {
+      // Call the model's saveNote method to save the note
+      await note.saveNote();
+      // You can show a confirmation message or do something else here
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Note saved successfully')));
+      // Optionally clear the text fields after saving
+      titleController.clear();
+      contentController.clear();
+    } catch (error) {
+      print("Error saving note: $error");
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error saving note')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Create',
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.blue,
+        title: Text('Create Note'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(20),
-        child: Center(
-          child: Column(
-            children: [
-              TextField(
-                controller: createNote,
-                textAlignVertical: TextAlignVertical.top,
-                maxLines: 15,
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: MediaQuery.sizeOf(context).height * 0.1,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: MediaQuery.sizeOf(context).height * 0.05,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('Back'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      SaveNote(createNote.text);
-                    },
-                    child: Text('Save'),
-                  ),
-                ],
-              )
-            ],
-          ),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: InputDecoration(labelText: 'Note Title'),
+            ),
+            SizedBox(height: 10),
+            TextField(
+              controller: contentController,
+              decoration: InputDecoration(labelText: 'Note Content'),
+              maxLines: 5,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: createNote, // Directly call the createNote method
+              child: Text('Save Note'),
+            ),
+          ],
         ),
       ),
     );
